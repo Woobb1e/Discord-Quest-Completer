@@ -5,7 +5,7 @@
 
   const CONFIG = {
     NAME: "QuestMaster",
-    VERSION: "v1.2.0",
+    VERSION: "v1.3.0",
     THEME: "#5865F2", // discord blurple
     SUCCESS: "#3BA55C",
     WARN: "#faa61a",
@@ -368,6 +368,10 @@
     if (existingUI)
       existingUI.style.display = "flex";
 
+    document
+      .getElementById("orion-bubble")
+      ?.classList.remove("show");
+
     return console.warn(
       `[${CONFIG.NAME}] Already running.`,
     );
@@ -676,32 +680,84 @@
       style.id = "orion-styles";
 
       style.innerHTML = `
-        @keyframes slideIn {
+        @keyframes orionIn {
           from {
-            transform: translateY(-20px);
             opacity: 0;
+            transform: translateY(-14px) scale(.985);
           }
 
           to {
-            transform: translateY(0);
             opacity: 1;
+            transform: translateY(0) scale(1);
           }
         }
 
-        @keyframes fadeOut {
-          from {
+        @keyframes taskOut {
+          0% {
             opacity: 1;
             transform: scale(1);
           }
 
-          to {
+          60% {
             opacity: 0;
-            transform: scale(0.95);
+            transform: scale(.96);
+          }
+
+          100% {
+            opacity: 0;
+            transform: scale(.94);
             margin: 0;
             padding: 0;
             height: 0;
             border: none;
           }
+        }
+
+        @keyframes auraBreath {
+          0%,
+          100% {
+            opacity: .3;
+          }
+
+          50% {
+            opacity: .85;
+          }
+        }
+
+        @keyframes orionSpin {
+          to {
+            transform: rotate(360deg);
+          }
+        }
+
+        #orion-ui,
+        #orion-consent,
+        #orion-bubble {
+          --oq-accent: #5865F2;
+          --oq-accent-2: #00c8ff;
+          --oq-green: #23a55a;
+          --oq-amber: #f0b232;
+          --oq-red: #f23f43;
+
+          --oq-panel: rgba(255, 255, 255, .04);
+          --oq-panel-2: rgba(255, 255, 255, .08);
+          --oq-line: rgba(255, 255, 255, .08);
+          --oq-line-2: rgba(255, 255, 255, .16);
+          --oq-text: #eef1fa;
+          --oq-dim: rgba(238, 241, 250, .55);
+          --oq-faint: rgba(238, 241, 250, .35);
+
+          color-scheme: dark;
+        }
+
+        #orion-ui *,
+        #orion-ui *::before,
+        #orion-ui *::after {
+          box-sizing: border-box;
+        }
+
+        #orion-ui button {
+          font-family: inherit;
         }
 
         #orion-ui {
@@ -711,165 +767,321 @@
           right: 20px;
           width: 380px;
           max-height: 53vh;
-          background: var(--background-base-low);
-          color: var(--text-default);
-          border: 1px solid var(--border-subtle);
-          border-radius: var(--radius-lg);
-          box-shadow: var(--shadow-button-overlay);
-          z-index: 1001;
-          font-family: var(--font-primary);
-          overflow: hidden;
-          animation: slideIn 0.3s ease;
           display: flex;
           flex-direction: column;
-          box-sizing: border-box;
+          overflow: hidden;
+          z-index: 1001;
+
+          background:
+            linear-gradient(165deg, rgba(255, 255, 255, .06) 0%, rgba(255, 255, 255, 0) 30%),
+            linear-gradient(180deg, rgba(21, 24, 38, .92) 0%, rgba(13, 15, 24, .87) 100%);
+          -webkit-backdrop-filter: blur(16px) saturate(180%);
+          backdrop-filter: blur(16px) saturate(180%);
+
+          color: var(--oq-text);
+          border: 1px solid var(--oq-line);
+          border-radius: 18px;
+          box-shadow:
+            0 20px 50px rgba(0, 0, 0, .6),
+            0 2px 8px rgba(0, 0, 0, .35),
+            inset 0 1px 0 rgba(255, 255, 255, .07);
+
+          font-family: 'gg sans', 'Noto Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          animation: orionIn .4s cubic-bezier(.2, .9, .25, 1.04) both;
           user-select: none;
           -webkit-app-region: no-drag;
         }
 
         #orion-head {
-          padding: 12px 16px;
-          background: var(--background-mod-muted);
-          flex: 0 0 auto;
+          flex: 0 0 50px;
+          height: 50px;
           display: flex;
-          justify-content: space-between;
           align-items: center;
-          border-bottom: 1px solid var(--border-subtle);
+          justify-content: space-between;
+          gap: 8px;
+          padding: 0 12px 0 14px;
+
+          background: linear-gradient(180deg, rgba(255, 255, 255, .05), rgba(255, 255, 255, .01));
+          border-bottom: 1px solid var(--oq-line);
           cursor: grab;
+          transition: background .2s ease;
         }
 
         #orion-head.dragging {
           cursor: grabbing;
-          background: var(--control-secondary-background-default);
+          background: rgba(88, 101, 242, .14);
         }
 
         #orion-title {
-          font-weight: 700;
-          font-size: 15px;
-          color: var(--text-strong);
           display: flex;
           align-items: center;
-          gap: 8px;
+          gap: 7px;
+          font-size: 14px;
+          font-weight: 800;
+          letter-spacing: .2px;
+          line-height: 1;
+          color: #fff;
+          white-space: nowrap;
         }
 
         #orion-title svg {
-          color: var(--text-brand);
+          color: var(--oq-accent);
+          filter: drop-shadow(0 0 7px rgba(88, 101, 242, .7));
         }
 
-        .dev-credit {
-          font-size: 12px;
-          margin-left: -4px;
-          padding-top: 2px;
-          font-weight: 500;
-          color: var(--text-muted);
+        .version-badge {
+          margin-left: 2px;
+          padding: 2px 7px;
+          border: 1px solid var(--oq-line);
+          border-radius: 99px;
+          background: var(--oq-panel);
+          font-size: 9px;
+          font-weight: 700;
+          letter-spacing: .4px;
+          text-transform: uppercase;
+          color: var(--oq-dim);
         }
 
         #orion-controls {
           display: flex;
-          gap: 10px;
           align-items: center;
+          gap: 6px;
         }
 
         .ctrl-btn {
-          cursor: pointer;
-          transition: 0.2s;
           display: flex;
           align-items: center;
+          gap: 4px;
+          border-radius: 8px;
+          cursor: pointer;
+          line-height: 1;
+          transition: background .18s ease, color .18s ease, border-color .18s ease, box-shadow .18s ease, transform .18s ease;
+        }
+
+        .ctrl-stop svg {
+          width: 11px;
+          height: 11px;
         }
 
         .ctrl-hide,
         .ctrl-opts {
-          font-size: 11px;
-          font-weight: 600;
-          color: var(--text-muted);
+          padding: 5px 8px;
+          font-size: 10px;
+          font-weight: 700;
+          letter-spacing: .6px;
+          color: var(--oq-dim);
         }
 
         .ctrl-hide:hover,
         .ctrl-opts:hover {
-          color: var(--text-default);
+          color: #fff;
+          background: var(--oq-panel-2);
+        }
+
+        .ctrl-opts svg {
+          width: 13px;
+          height: 13px;
+          opacity: .85;
         }
 
         .ctrl-stop {
-          font-size: 11px;
-          font-weight: 700;
-          gap: 4px;
-          padding: 3px 8px 3px 6px;
-          border-radius: var(--radius-sm);
+          padding: 4px 9px;
+          border: 1px solid rgba(242, 63, 67, .38);
           background: transparent;
-          border: 1px solid var(--control-critical-primary-background-default);
-          color: var(--control-critical-primary-background-default);
+          font-size: 10px;
+          font-weight: 800;
+          letter-spacing: .6px;
+          color: #ff9499;
         }
 
         .ctrl-stop:hover {
-          background: var(--control-critical-primary-background-default);
           color: #fff;
+          background: rgba(242, 63, 67, .82);
+          box-shadow: 0 0 14px rgba(242, 63, 67, .45);
+          transform: translateY(-1px);
+        }
+
+        .ctrl-stop:active {
+          transform: translateY(0);
         }
 
         #orion-logs {
-          padding: 10px 14px;
-          background: var(--background-base-lower);
           flex: 0 0 auto;
-          font-family: 'Consolas', 'Monaco', monospace;
-          font-size: 11px;
+          display: block;
+          margin: 0 12px 12px;
+          padding: 8px 11px;
           height: 110px;
           overflow-y: auto;
-          border-top: 1px solid var(--border-subtle);
           scroll-behavior: smooth;
+          user-select: text;
+
+          background: rgba(3, 5, 12, .48);
+          border: 1px solid var(--oq-line);
+          border-radius: 12px;
+          box-shadow: inset 0 2px 8px rgba(0, 0, 0, .35);
+
+          font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+          font-size: 10.5px;
+          color: var(--oq-dim);
         }
 
         .log-item {
-          margin-bottom: 6px;
           display: flex;
           gap: 8px;
-          line-height: 1.4;
-          padding-bottom: 4px;
+          padding: 2px 0;
+          margin-bottom: 2px;
+          border-bottom: 1px dashed rgba(255, 255, 255, .05);
+          line-height: 1.45;
+          word-break: break-word;
+          color: #d6dcf3;
+        }
+
+        .log-item:last-child {
+          border-bottom: none;
         }
 
         .log-ts {
-          opacity: 0.5;
-          min-width: 50px;
-          font-size: 10px;
+          flex: 0 0 auto;
+          min-width: 48px;
+          font-size: 9.5px;
+          letter-spacing: .2px;
+          color: var(--oq-faint);
         }
 
         .c-info {
-          color: var(--text-feedback-info);
-          opacity: .8;
+          color: #a9b3ff;
+          opacity: .9;
         }
 
         .c-success {
-          color: var(--text-feedback-positive);
+          color: #52e08a;
         }
 
         .c-err {
-          color: var(--text-feedback-critical);
+          color: #ff7d82;
         }
 
         .c-warn {
-          color: var(--text-feedback-warning);
+          color: #ffc861;
         }
 
         .c-debug {
-          color: #949ba4;
+          color: #6f7688;
         }
 
         #orion-body {
           flex: 1 1 auto;
-          padding: 12px;
           min-height: 0;
-          overflow-y: auto;
           display: flex;
           flex-direction: column;
+          padding: 12px;
+          overflow-y: auto;
+          overscroll-behavior: contain;
+        }
+
+        #orion-body.picker-mode {
+          padding: 12px 14px;
         }
 
         #orion-picker-form {
+          flex: 1 1 auto;
           display: flex;
           flex-direction: column;
           min-height: 0;
         }
 
+        #orion-options-panel {
+          flex-shrink: 0;
+        }
+
+        #orion-dash-options {
+          position: absolute;
+          top: 58px;
+          right: 12px;
+          z-index: 40;
+          width: 252px;
+          padding: 10px;
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+
+          background:
+            linear-gradient(165deg, rgba(255, 255, 255, .05) 0%, rgba(255, 255, 255, 0) 35%),
+            linear-gradient(180deg, rgba(22, 25, 38, .97) 0%, rgba(14, 16, 26, .95) 100%);
+          -webkit-backdrop-filter: blur(18px) saturate(180%);
+          backdrop-filter: blur(18px) saturate(180%);
+          border: 1px solid var(--oq-line);
+          border-radius: 14px;
+          box-shadow:
+            0 16px 38px rgba(0, 0, 0, .55),
+            inset 0 1px 0 rgba(255, 255, 255, .06);
+
+          opacity: 0;
+          transform: translateY(-6px) scale(.97);
+          pointer-events: none;
+          transition: opacity .18s ease, transform .18s ease;
+        }
+
+        #orion-dash-options.show {
+          opacity: 1;
+          transform: none;
+          pointer-events: auto;
+        }
+
+        #orion-dash-options .orion-option {
+          padding: 8px 10px;
+        }
+
+        #orion-dash-options .orion-option-label {
+          font-size: 11.5px;
+        }
+
+        .dash-options-title {
+          display: flex;
+          align-items: center;
+          gap: 7px;
+          padding: 2px 4px 6px;
+          font-size: 10px;
+          font-weight: 800;
+          letter-spacing: .8px;
+          text-transform: uppercase;
+          color: var(--oq-faint);
+        }
+
+        .dash-options-title svg {
+          width: 13px;
+          height: 13px;
+          color: var(--oq-accent);
+        }
+
+        .orion-empty {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+          padding: 26px 14px;
+          text-align: center;
+          font-size: 12px;
+          font-weight: 600;
+          letter-spacing: .3px;
+          color: var(--oq-faint);
+        }
+
+        .orion-empty.busy::after {
+          content: "";
+          width: 16px;
+          height: 16px;
+          border: 2px solid rgba(255, 255, 255, .12);
+          border-top-color: var(--oq-accent);
+          border-radius: 50%;
+          animation: orionSpin .8s linear infinite;
+        }
+
         #orion-ui ::-webkit-scrollbar {
-          width: 4px;
-          height: 4px;
+          width: 6px;
+          height: 6px;
         }
 
         #orion-ui ::-webkit-scrollbar-track {
@@ -877,106 +1089,121 @@
         }
 
         #orion-ui ::-webkit-scrollbar-thumb {
-          background: var(--scrollbar-auto-scrollbar-color-thumb);
-          border-radius: 4px;
+          background: rgba(255, 255, 255, .13);
+          border-radius: 99px;
+        }
+
+        #orion-ui ::-webkit-scrollbar-thumb:hover {
+          background: rgba(255, 255, 255, .25);
+        }
+
+        #orion-ui ::-webkit-scrollbar-corner {
+          background: transparent;
         }
 
         .task-card {
-          --state-color: var(--ansi-bright-blue);
-          --icon-bg-opacity: 15%;
+          --state-color: var(--oq-accent);
+          --icon-bg-opacity: 18%;
           --icon-color: var(--state-color);
 
-          display: flex;
-          gap: 12px;
-          padding: 10px 12px;
-          margin-bottom: 8px;
-          align-items: center;
-          background: var(--control-secondary-background-default);
-          border-radius: var(--radius-sm);
-          border: 1px solid var(--border-muted);
-          border-left: 4px solid var(--state-color);
-          box-shadow: var(--shadow-low);
-          transition: 0.3s;
+          position: relative;
           flex-shrink: 0;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          margin-bottom: 8px;
+          padding: 10px 12px;
+
+          background: linear-gradient(180deg, rgba(255, 255, 255, .05), rgba(255, 255, 255, .02));
+          border: 1px solid var(--oq-line);
+          border-left: 3px solid var(--state-color);
+          border-radius: 14px;
+          box-shadow: 0 6px 18px rgba(0, 0, 0, .3);
+          transition: transform .22s ease, box-shadow .22s ease, border-color .22s ease, background .22s ease;
+        }
+
+        .task-card:hover {
+          transform: translateY(-2px);
+          background: linear-gradient(180deg, rgba(255, 255, 255, .08), rgba(255, 255, 255, .03));
+          border-color: var(--oq-line-2);
+          border-left-color: var(--state-color);
+          box-shadow:
+            0 12px 28px rgba(0, 0, 0, .45),
+            0 0 14px color-mix(in srgb, var(--state-color) 22%, transparent);
+        }
+
+        .task-card.running::after {
+          content: "";
+          position: absolute;
+          inset: 0;
+          border-radius: inherit;
+          pointer-events: none;
+          background: radial-gradient(130% 150% at 0% 0%, rgba(88, 101, 242, .16), transparent 52%);
+          animation: auraBreath 3.4s ease-in-out infinite;
         }
 
         .task-card.removing {
-          animation: fadeOut 0.4s forwards;
+          pointer-events: none;
+          animation: taskOut .42s ease forwards;
         }
 
         .task-card.done {
-          --state-color: var(--ansi-green);
+          --state-color: var(--oq-green);
           --icon-bg-opacity: 100%;
-          --icon-color: #fff;
+          --icon-color: #eafff4;
         }
 
         .task-card.failed {
-          --state-color: var(--ansi-red);
+          --state-color: var(--oq-red);
         }
 
         .task-card.pending {
-          --state-color: var(--ansi-bright-yellow);
+          --state-color: var(--oq-amber);
         }
 
         .task-icon {
           position: relative;
+          flex: 0 0 auto;
           width: 40px;
           height: 40px;
           border-radius: 50%;
-          flex: 0 0 auto;
-          background-color:
-            color-mix(
-              in srgb,
-              var(--state-color)
-                var(--icon-bg-opacity),
-              transparent
-            );
           display: flex;
           align-items: center;
           justify-content: center;
+
+          background-color: color-mix(in srgb, var(--state-color) var(--icon-bg-opacity), transparent);
+          box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--state-color) 30%, transparent);
+          transition: background-color .25s ease;
         }
 
         .task-card.running .task-icon::before {
           content: '';
           position: absolute;
           inset: 0;
-          border-radius: 50%;
           z-index: 1;
-          background:
-            conic-gradient(
-              lch(71 59 139)
-              0%
-              var(--p, 0%),
-              var(--border-subtle)
-              var(--p, 0%)
-              100%
-            );
-          -webkit-mask-image:
-            radial-gradient(
-              circle at center,
-              transparent 16px,
-              black 17px
-            );
-          mask-image:
-            radial-gradient(
-              circle at center,
-              transparent 16px,
-              black 17px
-            );
+          border-radius: 50%;
+
+          background: conic-gradient(
+            var(--oq-accent-2),
+            var(--oq-accent) var(--p, 0%),
+            rgba(255, 255, 255, .08) var(--p, 0%),
+            rgba(255, 255, 255, .08) 100%
+          );
+          -webkit-mask-image: radial-gradient(circle at center, transparent 16px, #000 16.75px);
+          mask-image: radial-gradient(circle at center, transparent 16px, #000 16.75px);
+          filter: drop-shadow(0 0 5px rgba(88, 101, 242, .55));
         }
 
         .task-icon-inner {
           z-index: 2;
-          color: var(--icon-color);
           display: flex;
-          transition:
-            filter 0.2s,
-            opacity 0.2s;
+          color: var(--icon-color);
+          transition: opacity .2s ease, filter .2s ease;
         }
 
         .task-card.running:hover .task-icon-inner {
           filter: blur(2px);
-          opacity: 0.3;
+          opacity: .25;
         }
 
         .task-icon-overlay {
@@ -986,12 +1213,13 @@
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 11px;
+          font-size: 10px;
           font-weight: 800;
-          color: var(--text-default);
+          font-variant-numeric: tabular-nums;
+          color: #fff;
           opacity: 0;
-          transition: opacity 0.2s;
           pointer-events: none;
+          transition: opacity .2s ease;
         }
 
         .task-card.running:hover .task-icon-overlay {
@@ -1003,181 +1231,250 @@
           min-width: 0;
           display: flex;
           flex-direction: column;
-          gap: 2px;
+          gap: 3px;
           justify-content: center;
         }
 
         .task-status {
-          font-size: 10px;
+          font-size: 9px;
           font-weight: 800;
-          color: var(--state-color);
+          letter-spacing: 1.1px;
           text-transform: uppercase;
-          letter-spacing: 0.5px;
+          color: var(--state-color);
+          text-shadow: 0 0 10px color-mix(in srgb, var(--state-color) 40%, transparent);
         }
 
         .task-name {
           font-size: 13px;
           font-weight: 700;
-          color: var(--text-strong);
-          letter-spacing: 0.2px;
+          letter-spacing: .1px;
+          line-height: 1.25;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
-          line-height: 1.2;
+          color: #fff;
         }
 
         .task-meta {
-          font-size: 11px;
-          font-weight: 700;
-          color: var(--text-muted);
           display: flex;
+          align-items: center;
           justify-content: space-between;
+          gap: 8px;
+          font-size: 10.5px;
+          font-weight: 600;
+          letter-spacing: .2px;
+          color: var(--oq-faint);
+        }
+
+        .progress-text {
+          font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+          font-size: 10px;
+          font-variant-numeric: tabular-nums;
+          color: var(--oq-dim);
+          background: var(--oq-panel);
+          border: 1px solid var(--oq-line);
+          border-radius: 99px;
+          padding: 1px 7px;
         }
 
         .task-actions {
           flex: 0 0 auto;
           display: flex;
           align-items: center;
-          margin-left: 4px;
+          margin-left: 2px;
         }
 
         .claim-btn,
         .goto-btn {
-          padding: 6px 10px;
+          padding: 7px 11px;
           border: none;
-          border-radius: var(--radius-sm);
-          font-size: 11px;
-          font-weight: 700;
-          cursor: pointer;
-          transition: 0.2s;
+          border-radius: 10px;
+          font-size: 10px;
+          font-weight: 800;
+          letter-spacing: .6px;
           text-transform: uppercase;
-          letter-spacing: 0.2px;
           white-space: nowrap;
+          cursor: pointer;
           font-family: inherit;
           color: #fff;
+          transition: transform .18s ease, box-shadow .18s ease, background .18s ease, color .18s ease;
         }
 
         .claim-btn {
-          background: var(--control-connected-background-default);
+          background: linear-gradient(135deg, #5865F2 0%, #4a53dd 55%, #3e48c5 100%);
+          box-shadow: 0 4px 14px rgba(88, 101, 242, .38);
         }
 
         .claim-btn:hover:not(:disabled) {
-          background: var(--control-connected-background-hover);
+          transform: translateY(-1px);
+          box-shadow: 0 6px 20px rgba(88, 101, 242, .6), inset 0 0 0 1px rgba(255, 255, 255, .14);
+        }
+
+        .claim-btn:active:not(:disabled) {
+          transform: translateY(0);
         }
 
         .claim-btn:disabled {
-          opacity: 0.5;
+          opacity: .45;
           cursor: not-allowed;
+          box-shadow: none;
         }
 
         .claim-btn.failed {
-          background: var(--control-secondary-background-active);
-          color: var(--text-default);
+          background: rgba(242, 63, 67, .13);
+          color: #ff9296;
+          box-shadow: inset 0 0 0 1px rgba(242, 63, 67, .38);
         }
 
         .goto-btn {
-          background: var(--control-primary-background-default);
+          background: rgba(88, 101, 242, .1);
+          color: #aab4ff;
+          box-shadow: inset 0 0 0 1px rgba(88, 101, 242, .45);
         }
 
         .goto-btn:hover:not(:disabled) {
-          background: var(--control-primary-background-hover);
+          transform: translateY(-1px);
+          background: rgba(88, 101, 242, .22);
+          color: #fff;
+          box-shadow: inset 0 0 0 1px rgba(88, 101, 242, .65), 0 4px 14px rgba(88, 101, 242, .3);
         }
 
         .picker-section-title {
-          font-size: 11px;
-          font-weight: 700;
-          color: var(--text-muted);
-          margin-bottom: 8px;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          margin: 10px 0 8px;
+          font-size: 9.5px;
+          font-weight: 800;
+          letter-spacing: 1.1px;
           text-transform: uppercase;
-          letter-spacing: 0.5px;
+          color: var(--oq-faint);
           flex-shrink: 0;
+        }
+
+        .picker-section-title::after {
+          content: "";
+          flex: 1;
+          height: 1px;
+          background: linear-gradient(90deg, var(--oq-line-2), transparent);
         }
 
         .reward-filters {
           display: flex;
-          gap: 6px;
-          margin-bottom: 12px;
           flex-wrap: wrap;
+          gap: 6px;
+          margin-bottom: 4px;
           flex-shrink: 0;
         }
 
         .reward-filter,
         .type-filter {
-          background-color: transparent;
-          border: 2px solid;
-          padding: 4px 10px;
-          border-radius: 24px;
-          font-size: 10px;
-          font-weight: 600;
+          padding: 4px 11px;
+          border: 1px solid;
+          border-radius: 99px;
+          background: color-mix(in srgb, currentColor 10%, transparent);
+          font-size: 9.5px;
+          font-weight: 700;
+          letter-spacing: .4px;
           cursor: pointer;
-          transition: 0.2s;
-          color: var(--text-subtle);
           font-family: inherit;
+          color: var(--oq-dim);
+          transition: opacity .18s ease, transform .18s ease, background .18s ease;
         }
 
         .reward-filter:hover,
         .type-filter:hover {
-          background-color:
-            color-mix(
-              in srgb,
-              currentColor 25%,
-              transparent
-            );
+          background: color-mix(in srgb, currentColor 22%, transparent);
+          transform: translateY(-1px);
         }
 
         .reward-filter.off,
         .type-filter.off {
-          background: transparent;
-          color: var(--text-muted);
-          opacity: 0.4;
+          opacity: .35;
+          filter: grayscale(.7);
         }
 
         .picker-quest-list {
+          flex: 1 1 auto;
           display: flex;
           flex-direction: column;
-          gap: 8px;
-          flex: 1 1 auto;
-          min-height: 50px;
+          gap: 6px;
+          min-height: 46px;
+          margin-top: 8px;
+          padding: 2px 6px 2px 2px;
           overflow-y: auto;
-          padding-right: 4px;
         }
 
         .quest-pick {
-          display: flex;
-          gap: 12px;
-          padding: 10px;
-          background: var(--control-secondary-background-default);
-          border-radius: var(--radius-sm);
-          border: 1px solid var(--border-muted);
-          border-left-width: 4px;
-          cursor: pointer;
-          transition: 0.2s;
-          align-items: center;
-          user-select: none;
           flex-shrink: 0;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 10px 12px;
+          background: linear-gradient(180deg, rgba(255, 255, 255, .045), rgba(255, 255, 255, .02));
+          border: 1px solid var(--oq-line);
+          border-left-width: 3px;
+          border-radius: 12px;
+          cursor: pointer;
+          user-select: none;
+          transition: transform .2s ease, background .2s ease, border-color .2s ease, box-shadow .2s ease;
         }
 
         .quest-pick:hover {
-          filter: brightness(1.15);
+          transform: translateY(-1px);
+          background: linear-gradient(180deg, rgba(255, 255, 255, .075), rgba(255, 255, 255, .03));
+          border-color: var(--oq-line-2);
+          box-shadow: 0 8px 20px rgba(0, 0, 0, .3);
         }
 
         .quest-pick.hidden {
           display: none !important;
         }
 
+        .quest-meta {
+          justify-content: flex-start;
+          min-width: 0;
+        }
+
+        .quest-type {
+          flex-shrink: 0;
+          padding: 2px 7px;
+          font-size: 9px;
+          font-weight: 800;
+          letter-spacing: .6px;
+          text-transform: uppercase;
+          color: var(--oq-faint);
+          background: var(--oq-panel);
+          border: 1px solid var(--oq-line);
+          border-radius: 99px;
+        }
+
+        .quest-reward {
+          font-weight: 700;
+          font-size: 11px;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
         .native-cb {
+          -webkit-appearance: none;
           appearance: none;
           width: 20px;
           height: 20px;
           margin: 0;
           flex-shrink: 0;
-          border: 1px solid var(--checkbox-border-default);
-          border-radius: var(--radius-xs);
-          background: transparent;
-          cursor: pointer;
-          transition: 0.15s;
           display: grid;
           place-content: center;
+          border: 1px solid rgba(255, 255, 255, .22);
+          border-radius: 6px;
+          background: rgba(255, 255, 255, .05);
+          cursor: pointer;
+          transition: background .18s ease, border-color .18s ease, box-shadow .18s ease;
+        }
+
+        .native-cb:hover {
+          border-color: rgba(255, 255, 255, .45);
         }
 
         .native-cb::before {
@@ -1185,7 +1482,8 @@
           width: 12px;
           height: 12px;
           opacity: 0;
-          transition: 0.1s;
+          transform: scale(.55);
+          transition: opacity .15s ease, transform .2s cubic-bezier(.34, 1.56, .64, 1);
           background-image:
             url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
           background-size: contain;
@@ -1194,49 +1492,60 @@
         }
 
         .native-cb:checked {
-          background: var(--checkbox-background-selected-default);
-          border-color: var(--checkbox-border-selected-default);
+          background: linear-gradient(135deg, #5865F2, #4149c9);
+          border-color: transparent;
+          box-shadow: 0 2px 10px rgba(88, 101, 242, .45);
         }
 
         .native-cb:checked::before {
           opacity: 1;
+          transform: scale(1);
         }
 
         .picker-options {
           display: flex;
           flex-direction: column;
           gap: 6px;
+          margin-bottom: 4px;
           flex-shrink: 0;
         }
 
         .orion-option {
           display: flex;
-          justify-content: space-between;
           align-items: center;
-          background: var(--control-secondary-background-default);
-          padding: 8px 12px;
-          border-radius: var(--radius-sm);
-          border: 1px solid var(--border-muted);
+          justify-content: space-between;
+          gap: 10px;
+          padding: 9px 12px;
+          background: var(--oq-panel);
+          border: 1px solid var(--oq-line);
+          border-radius: 10px;
+          transition: background .18s ease, border-color .18s ease;
+        }
+
+        .orion-option:hover {
+          background: var(--oq-panel-2);
+          border-color: var(--oq-line-2);
         }
 
         .orion-option-label {
-          font-size: 13px;
-          font-weight: 500;
-          color: var(--text-default);
+          font-size: 12.5px;
+          font-weight: 600;
+          color: var(--oq-text);
         }
 
         .native-toggle {
+          -webkit-appearance: none;
           appearance: none;
+          position: relative;
           width: 40px;
           height: 20px;
           margin: 0;
           flex-shrink: 0;
-          background: var(--control-secondary-background-default);
-          border-radius: 12px;
+          border: 1px solid rgba(255, 255, 255, .14);
+          border-radius: 99px;
+          background: rgba(255, 255, 255, .07);
           cursor: pointer;
-          position: relative;
-          transition: 0.2s;
-          border: 1px solid var(--border-muted);
+          transition: background .2s ease, border-color .2s ease, box-shadow .2s ease;
         }
 
         .native-toggle::after {
@@ -1246,18 +1555,25 @@
           left: 2px;
           width: 14px;
           height: 14px;
-          background: white;
           border-radius: 50%;
-          box-shadow: var(--shadow-low);
-          transition: 0.2s;
+          background: rgba(255, 255, 255, .8);
+          box-shadow: 0 1px 4px rgba(0, 0, 0, .5);
+          transition: transform .25s cubic-bezier(.34, 1.56, .64, 1), background .2s ease;
+        }
+
+        .native-toggle:hover::after {
+          background: #fff;
         }
 
         .native-toggle:checked {
-          background: var(--control-primary-background-default);
+          background: linear-gradient(135deg, #5865F2, #454ecb);
+          border-color: transparent;
+          box-shadow: 0 0 12px rgba(88, 101, 242, .45);
         }
 
         .native-toggle:checked::after {
           transform: translateX(20px);
+          background: #fff;
         }
 
         .picker-actions {
@@ -1269,44 +1585,129 @@
 
         .quest-pick-btn {
           flex: 1;
-          padding: 10px;
-          border: 1px solid;
-          border-radius: var(--radius-sm, 8px);
-          font-size: 13px;
-          font-weight: 700;
-          cursor: pointer;
-          transition: 0.2s;
           display: flex;
           align-items: center;
           justify-content: center;
-          gap: 6px;
+          gap: 7px;
+          padding: 11px 12px;
+          border: 1px solid transparent;
+          border-radius: 12px;
+          font-size: 12.5px;
+          font-weight: 800;
+          letter-spacing: .5px;
+          cursor: pointer;
           font-family: inherit;
           color: #fff;
+          transition: transform .18s ease, box-shadow .18s ease, background .18s ease, border-color .18s ease, color .18s ease, opacity .18s ease;
+        }
+
+        .quest-pick-btn svg {
+          width: 14px;
+          height: 14px;
         }
 
         .quest-pick-btn.start {
-          background-color: var(--control-connected-background-default);
-          border-color: var(--control-connected-border-default);
+          background: linear-gradient(135deg, #5865F2 0%, #4a53dd 55%, #3e48c5 100%);
+          box-shadow: 0 6px 18px rgba(88, 101, 242, .4);
         }
 
         .quest-pick-btn.start:hover:not(:disabled) {
-          background: var(--control-connected-background-hover);
-          border-color: var(--control-connected-border-hover);
+          transform: translateY(-1px);
+          box-shadow: 0 8px 24px rgba(88, 101, 242, .62), inset 0 0 0 1px rgba(255, 255, 255, .16);
+        }
+
+        .quest-pick-btn.start:active:not(:disabled) {
+          transform: translateY(0);
         }
 
         .quest-pick-btn.deselect {
-          background-color: var(--control-secondary-background-default);
-          border-color: var(--control-secondary-border-default);
-          color: var(--text-default);
+          background: var(--oq-panel);
+          border-color: var(--oq-line-2);
+          color: var(--oq-dim);
         }
 
         .quest-pick-btn.deselect:hover:not(:disabled) {
-          background: var(--control-secondary-background-hover);
+          background: var(--oq-panel-2);
+          color: #fff;
+          transform: translateY(-1px);
         }
 
         .quest-pick-btn:disabled {
-          opacity: 0.5;
+          opacity: .45;
           cursor: not-allowed;
+        }
+
+        #orion-consent > div {
+          background: rgba(17, 20, 32, .94) !important;
+          border: 1px solid rgba(255, 255, 255, .09) !important;
+          border-radius: 16px !important;
+          box-shadow: 0 24px 64px rgba(0, 0, 0, .65) !important;
+          color: var(--oq-text) !important;
+          -webkit-backdrop-filter: blur(20px) saturate(180%);
+          backdrop-filter: blur(20px) saturate(180%);
+        }
+
+        #orion-consent > div > div:first-child {
+          background: linear-gradient(180deg, rgba(255, 255, 255, .05), rgba(255, 255, 255, .02)) !important;
+          border-bottom: 1px solid rgba(255, 255, 255, .08) !important;
+          color: #fff !important;
+        }
+
+        #orion-bubble {
+          position: fixed;
+          right: 20px;
+          bottom: 20px;
+          z-index: 1000;
+          display: none;
+          align-items: center;
+          gap: 8px;
+          padding: 10px 14px 10px 12px;
+          border-radius: 14px;
+
+          background:
+            linear-gradient(165deg, rgba(255, 255, 255, .07) 0%, rgba(255, 255, 255, 0) 40%),
+            linear-gradient(180deg, rgba(21, 24, 38, .94), rgba(13, 15, 24, .9));
+          -webkit-backdrop-filter: blur(16px) saturate(180%);
+          backdrop-filter: blur(16px) saturate(180%);
+
+          color: var(--oq-text);
+          border: 1px solid var(--oq-line);
+          box-shadow:
+            0 12px 32px rgba(0, 0, 0, .55),
+            inset 0 1px 0 rgba(255, 255, 255, .07);
+
+          font-family: 'gg sans', 'Noto Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+          font-size: 12px;
+          font-weight: 700;
+          letter-spacing: .2px;
+          cursor: pointer;
+          user-select: none;
+          -webkit-app-region: no-drag;
+          transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+        }
+
+        #orion-bubble.show {
+          display: flex;
+          animation: orionIn .3s cubic-bezier(.2, .9, .25, 1.04) both;
+        }
+
+        #orion-bubble:hover {
+          transform: translateY(-2px);
+          border-color: rgba(88, 101, 242, .55);
+          box-shadow:
+            0 14px 36px rgba(0, 0, 0, .6),
+            0 0 18px rgba(88, 101, 242, .35);
+        }
+
+        #orion-bubble:active {
+          transform: translateY(-1px);
+        }
+
+        #orion-bubble svg {
+          width: 14px;
+          height: 14px;
+          color: var(--oq-accent);
+          filter: drop-shadow(0 0 6px rgba(88, 101, 242, .7));
         }
       `;
 
@@ -1322,14 +1723,7 @@
           <span id="orion-title">
             ${ICONS.BOLT}
             ${CONFIG.NAME}
-            <span class="dev-credit">by matin</span>
-            <span style="
-              opacity:0.6;
-              font-size:10px;
-              margin-left:4px;
-              padding-top:3px;
-              font-weight:500;
-            ">
+            <span class="version-badge">
               ${CONFIG.VERSION}
             </span>
           </span>
@@ -1346,7 +1740,7 @@
             <span
               class="ctrl-btn ctrl-hide"
               id="orion-close"
-              title="Shift + ."
+              title="Hide — reopen via the bubble or Shift + ."
             >
               HIDE
             </span>
@@ -1362,13 +1756,7 @@
         </div>
 
         <div id="orion-body">
-          <div style="
-            text-align:center;
-            padding:30px;
-            color:var(--text-muted);
-            font-size:12px;
-            font-weight:500;
-          ">
+          <div class="orion-empty busy">
             Initializing System...
           </div>
         </div>
@@ -1378,6 +1766,36 @@
 
       document.body.appendChild(
         this.root,
+      );
+
+      /* floating reopen pill (shown when panel is hidden) */
+
+      document
+        .getElementById(
+          "orion-bubble",
+        )
+        ?.remove();
+
+      this.bubble =
+        document.createElement(
+          "div",
+        );
+
+      this.bubble.id =
+        "orion-bubble";
+
+      this.bubble.innerHTML = `
+        ${ICONS.BOLT}
+        <span>QuestMaster</span>
+      `;
+
+      this.bubble.addEventListener(
+        "click",
+        () => this.toggle(),
+      );
+
+      document.body.appendChild(
+        this.bubble,
       );
 
       const head =
@@ -1629,9 +2047,9 @@
         this.shutdown();
 
       this.keyHandler = (e) =>
-        (e.key === ">" ||
-          (e.shiftKey &&
-            e.key === ".")) &&
+        ((e.code === "Period" &&
+          e.shiftKey) ||
+          e.key === ">") &&
         this.toggle();
 
       document.addEventListener(
@@ -1651,8 +2069,11 @@
                 "orion-options-panel",
               );
 
-            if (!panel)
+            if (!panel) {
+              this.toggleDashOptions();
+
               return;
+            }
 
             const open =
               panel.style.display ===
@@ -1689,11 +2110,190 @@
     },
 
     toggle() {
-      this.root.style.display =
+      const hidden =
         this.root.style.display ===
-        "none"
-          ? "flex"
-          : "none";
+        "none";
+
+      this.root.style.display = hidden
+        ? "flex"
+        : "none";
+
+      if (this.bubble) {
+        this.bubble.classList.toggle(
+          "show",
+          !hidden,
+        );
+      }
+
+      if (hidden)
+        this.closeDashOptions();
+    },
+
+    toggleDashOptions() {
+      if (this.dashOptions) {
+        this.closeDashOptions();
+
+        return;
+      }
+
+      const ui =
+        document.getElementById(
+          "orion-ui",
+        );
+
+      if (!ui)
+        return;
+
+      const rows = [
+        [
+          "autoEnroll",
+          "Auto-enroll in quests",
+          RUNTIME.autoEnroll,
+        ],
+
+        [
+          "autoClaim",
+          "Auto-claim rewards",
+          RUNTIME.autoClaim,
+        ],
+
+        [
+          "playSound",
+          "Sound on completion",
+          RUNTIME.playSound,
+        ],
+
+        [
+          "randomDelay",
+          "Random 1-30min delay between cycles",
+          RUNTIME.randomDelay,
+        ],
+      ];
+
+      const wrap =
+        document.createElement(
+          "div",
+        );
+
+      wrap.id =
+        "orion-dash-options";
+
+      wrap.innerHTML = `
+        <div
+          class="dash-options-title"
+        >
+          ${ICONS.OPT}
+          Live Settings
+        </div>
+
+        ${rows
+          .map(
+            (
+              [key, label, val],
+            ) => `
+              <div
+                class="orion-option"
+              >
+                <span
+                  class="orion-option-label"
+                >
+                  ${label}
+                </span>
+
+                <input
+                  type="checkbox"
+                  data-opt="${key}"
+                  class="native-toggle"
+                  ${
+                    val
+                      ? "checked"
+                      : ""
+                  }
+                >
+              </div>
+            `,
+          )
+          .join("")}
+      `;
+
+      wrap.addEventListener(
+        "change",
+        (e) => {
+          const key =
+            e.target?.dataset?.opt;
+
+          if (
+            !key ||
+            !(key in RUNTIME)
+          )
+            return;
+
+          RUNTIME[key] =
+            !!e.target.checked;
+
+          this.log(
+            `[Options] ${key} → ${
+              e.target.checked
+                ? "ON"
+                : "OFF"
+            }`,
+            "info",
+          );
+        },
+      );
+
+      this.dashOutside = (e) => {
+        if (!this.dashOptions)
+          return;
+
+        if (
+          this.dashOptions.contains(
+            e.target,
+          ) ||
+          e.target.closest?.(
+            "#orion-opts",
+          )
+        )
+          return;
+
+        this.closeDashOptions();
+      };
+
+      ui.appendChild(
+        wrap,
+      );
+
+      this.dashOptions = wrap;
+
+      void wrap.offsetWidth;
+
+      wrap.classList.add("show");
+
+      setTimeout(
+        () =>
+          document.addEventListener(
+            "mousedown",
+            this.dashOutside,
+            true,
+          ),
+        0,
+      );
+    },
+
+    closeDashOptions() {
+      this.dashOptions?.remove();
+
+      this.dashOptions = null;
+
+      if (this.dashOutside) {
+        document.removeEventListener(
+          "mousedown",
+          this.dashOutside,
+          true,
+        );
+
+        this.dashOutside = null;
+      }
     },
 
     shutdown() {
@@ -1701,6 +2301,8 @@
         return;
 
       RUNTIME.running = false;
+
+      this.closeDashOptions();
 
       this.log(
         "[System] Stopping script & cleaning up...",
@@ -1785,6 +2387,10 @@
         ) {
           this.root.remove();
         }
+
+        this.bubble?.remove();
+
+        this.bubble = null;
       } finally {
         window.orionLock =
           false;
@@ -2033,12 +2639,7 @@
 
       if (!this.tasks.size) {
         body.innerHTML = `
-          <div style="
-            text-align:center;
-            padding:30px;
-            color:var(--text-muted);
-            font-size:13px;
-          ">
+          <div class="orion-empty">
             Waiting for tasks...
           </div>
         `;
@@ -2368,6 +2969,8 @@
             logs.style.display =
               "none";
 
+          this.closeDashOptions();
+
           const items = [];
           const rewardTypes =
             new Map();
@@ -2550,26 +3153,14 @@
                     ${esc(q.name)}
                   </div>
 
-                  <div
-                    class="task-meta"
-                    style="
-                      justify-content:flex-start;
-                      gap:8px;
-                    "
-                  >
-                    <span
-                      style="
-                        text-transform:uppercase;
-                        color:var(--text-subtle);
-                      "
-                    >
+                  <div class="task-meta quest-meta">
+                    <span class="quest-type">
                       ${esc(q.type)}
                     </span>
 
                     <span
-                      style="
-                        color:${q.color};
-                      "
+                      class="quest-reward"
+                      style="color:${q.color};"
                     >
                       ${esc(
                         q.rewardText,
@@ -2724,7 +3315,7 @@
                     display:none;
                     margin:auto;
                     text-align:center;
-                    color:var(--text-muted);
+                    color:rgba(238,241,250,.35);
                     font-size:11px;
                     font-weight:700;
                     text-transform:uppercase;
