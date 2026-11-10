@@ -8,12 +8,6 @@ QuestMaster is a userscript for the Discord desktop application that automatical
 | **Platform** | Discord desktop application only — not compatible with the browser client or mobile |
 
 ---
-## Preview
-
-<img width="431" height="488" alt="Untitled-1" src="https://github.com/user-attachments/assets/82227d75-cd9a-4f1a-8c26-893b95ba2b15" />
-
-<img width="431" height="488" alt="3" src="https://github.com/user-attachments/assets/ab37d194-8eff-4988-996b-e2cfb611f3d2" />
-
 
 ## Requirements
 
