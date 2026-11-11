@@ -1,14 +1,13 @@
 # QuestMaster — Discord Quest Completer
 
-QuestMaster is a userscript for the Discord desktop application that automatically completes Discord quests — watching videos, playing games, streaming, and achievements — and claims the resulting rewards.
+<div align="center">
+   
+[![GitHub](https://img.shields.io/badge/GitHub-Woobb1e-181717?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Woobb1e)
+[![Discord](https://img.shields.io/badge/Discord-Join%20Server-5865F2?style=for-the-badge&logo=discord&logoColor=white)](https://discord.gg/GBUZU7saue)
 
-| | |
-| --- | --- |
-| **Version** | v1.3.0 |
-| **Platform** | Discord desktop application only — not compatible with the browser client or mobile |
+</div>
 
 ---
-
 ## Requirements
 
 - Discord desktop application 
