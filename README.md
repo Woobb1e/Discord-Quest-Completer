@@ -48,7 +48,8 @@ This script automates quest progression, which conflicts with the Discord Terms 
 
 ---
 
-## Links
+## Sources
 
-- Original source: <https://github.com/power0matin/discord-quest-auto-completer>
-- Discord server: <https://discord.gg/GBUZU7saue>
+- [discord-quest-auto-completer](https://github.com/power0matin/discord-quest-auto-completer) by power0matin.
+
+---
